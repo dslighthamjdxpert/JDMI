@@ -6,6 +6,7 @@ Interactive assessment for organizational job data maturity
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
+import matplotlib.colors as mcolors
 from utils import calculate_jdmi_score, get_level_info, get_recommendations
 
 # Page config
@@ -24,9 +25,20 @@ html, body, [class*="css"] {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+/* Main background color */
+.main .block-container {
+    background-color: #F9F9F9;
+    color: #3C3C3C;
+}
+
+/* Global text color */
+.stMarkdown, .stText, p, h1, h2, h3, h4, h5, h6, label, .stRadio label, .stCheckbox label {
+    color: #3C3C3C !important;
+}
+
 .score-box {
     padding: 2rem; border-radius: 0.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3AC1CC 0%, #4089CE 100%);
     color: white; text-align: center; margin: 1rem 0;
     font-family: 'Inter', sans-serif;
 }
@@ -34,11 +46,13 @@ html, body, [class*="css"] {
     font-size: 3rem; 
     font-weight: 700;
     font-family: 'Inter', sans-serif;
+    color: white !important;
 }
 .rec-box {
-    padding: 1rem; border-left: 4px solid #667eea;
-    background-color: #f3f4f6; margin: 0.5rem 0; border-radius: 0.25rem;
+    padding: 1rem; border-left: 4px solid #3AC1CC;
+    background-color: #ffffff; margin: 0.5rem 0; border-radius: 0.25rem;
     font-family: 'Inter', sans-serif;
+    color: #3C3C3C;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -253,22 +267,30 @@ else:
         fig = go.Figure()
         fig.add_trace(go.Scatterpolar(
             r=values_closed, theta=categories_closed, fill='toself', name='Your Score',
-            line=dict(color='#667eea', width=2), fillcolor='rgba(102, 126, 234, 0.3)'))
+            line=dict(color='#3AC1CC', width=2.5), fillcolor='rgba(58, 193, 204, 0.25)'))
         
         # Industry average
         avg_values = [1.95, 2.08, 1.94, 1.93, 2.52, 2.08, 1.78] + [1.95]
         fig.add_trace(go.Scatterpolar(
             r=avg_values, theta=categories_closed, fill='toself', name='Industry Avg',
-            line=dict(color='#9ca3af', width=1, dash='dash'),
-            fillcolor='rgba(156, 163, 175, 0.1)'))
+            line=dict(color='#72CAB5', width=1.5, dash='dash'),
+            fillcolor='rgba(114, 202, 181, 0.1)'))
         
         fig.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, 4], tickvals=[0,1,2,3,4])),
-            showlegend=True, title="JDMI Dimension Scores", height=450)
+            polar=dict(
+                radialaxis=dict(visible=True, range=[0, 4], tickvals=[0,1,2,3,4], gridcolor='#E0E0E0'),
+                bgcolor='#FFFFFF'
+            ),
+            showlegend=True, 
+            title="JDMI Dimension Scores",
+            title_font=dict(color='#3C3C3C'),
+            height=450,
+            paper_bgcolor='#F9F9F9',
+            font=dict(color='#3C3C3C'))
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        # Scores table
+        # Scores table with custom color gradient
         dim_names = ['Coverage', 'Governance', 'Velocity', 'Architecture', 
                     'Integration', 'Controls', 'Ability to Act']
         df = pd.DataFrame({
@@ -277,7 +299,13 @@ else:
             'Max': [4] * 7,
             'Gap': [4 - s for s in values]
         })
-        st.dataframe(df.style.background_gradient(subset=['Score'], cmap='RdYlGn', vmin=0, vmax=4),
+        
+        # Create custom colormap using brand colors: Red-Orange -> Orange -> Blue -> Teal -> Green-Teal
+        colors = ['#D74A28', '#FF8743', '#4089CE', '#3AC1CC', '#72CAB5']
+        n_bins = 100
+        cmap = mcolors.LinearSegmentedColormap.from_list('jdx_colors', colors, N=n_bins)
+        
+        st.dataframe(df.style.background_gradient(subset=['Score'], cmap=cmap, vmin=0, vmax=4),
                     use_container_width=True, hide_index=True)
     
     # Recommendations
