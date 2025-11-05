@@ -81,6 +81,28 @@ h1, h2, h3 {
     color: #3C3C3C !important;
 }
 
+/* Expander caret/arrow color */
+.streamlit-expanderHeader svg {
+    stroke: #F9F9F9 !important;
+    fill: #F9F9F9 !important;
+}
+
+details summary svg {
+    stroke: #F9F9F9 !important;
+    fill: #F9F9F9 !important;
+}
+
+/* Ensure metric values and other numbers are visible on light background */
+[data-testid="stMetricValue"],
+[data-testid="stMetricDelta"],
+.stMetric {
+    color: #3C3C3C !important;
+}
+
+[data-testid="stMetricValue"] > div {
+    color: #3C3C3C !important;
+}
+
 .score-box {
     padding: 2rem; border-radius: 0.5rem;
     background: linear-gradient(135deg, #3AC1CC 0%, #4089CE 100%);
@@ -278,6 +300,13 @@ else:
     scores = st.session_state.scores
     level_info = st.session_state.level_info
     
+    # Scroll to top when results page loads
+    st.markdown("""
+    <script>
+        window.parent.document.querySelector('section.main').scrollTo(0, 0);
+    </script>
+    """, unsafe_allow_html=True)
+    
     st.markdown("---")
     st.markdown("## 📊 Your JDMI Results")
     
@@ -323,16 +352,30 @@ else:
         
         fig.update_layout(
             polar=dict(
-                radialaxis=dict(visible=True, range=[0, 4], tickvals=[0,1,2,3,4], gridcolor='#E0E0E0'),
+                radialaxis=dict(
+                    visible=True, 
+                    range=[0, 4], 
+                    tickvals=[0,1,2,3,4], 
+                    gridcolor='#E0E0E0',
+                    tickfont=dict(color='#3C3C3C', size=12)
+                ),
+                angularaxis=dict(
+                    tickfont=dict(color='#3C3C3C', size=12)
+                ),
                 bgcolor='#FFFFFF'
             ),
             showlegend=True, 
+            legend=dict(
+                font=dict(color='#3C3C3C', size=12),
+                bgcolor='rgba(255, 255, 255, 0.8)'
+            ),
             title="JDMI Dimension Scores",
-            title_font=dict(color='#3C3C3C'),
+            title_font=dict(color='#3C3C3C', size=16),
             height=450,
             paper_bgcolor='#F9F9F9',
-            font=dict(color='#3C3C3C'))
-        st.plotly_chart(fig, use_container_width=True)
+            plot_bgcolor='#F9F9F9',
+            font=dict(color='#3C3C3C', family='Inter'))
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     
     with col2:
         # Scores table with custom color gradient
