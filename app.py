@@ -14,15 +14,31 @@ st.set_page_config(page_title="JDMI Assessment", page_icon="📊", layout="wide"
 # CSS styling
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html, body, [class*="css"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
 .score-box {
     padding: 2rem; border-radius: 0.5rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white; text-align: center; margin: 1rem 0;
+    font-family: 'Inter', sans-serif;
 }
-.score-number { font-size: 3rem; font-weight: 700; }
+.score-number { 
+    font-size: 3rem; 
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+}
 .rec-box {
     padding: 1rem; border-left: 4px solid #667eea;
     background-color: #f3f4f6; margin: 0.5rem 0; border-radius: 0.25rem;
+    font-family: 'Inter', sans-serif;
 }
 </style>
 """, unsafe_allow_html=True)
