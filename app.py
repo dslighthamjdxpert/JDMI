@@ -17,6 +17,7 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Font family */
 * {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
@@ -25,14 +26,25 @@ html, body, [class*="css"] {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Main background color */
+/* Main app background - target multiple Streamlit containers */
+.main, .main > div, .block-container, [data-testid="stAppViewContainer"] {
+    background-color: #F9F9F9 !important;
+}
+
+/* Ensure main content area has correct background */
+section[data-testid="stAppViewContainer"] > div:first-child,
 .main .block-container {
-    background-color: #F9F9F9;
-    color: #3C3C3C;
+    background-color: #F9F9F9 !important;
 }
 
 /* Global text color */
-.stMarkdown, .stText, p, h1, h2, h3, h4, h5, h6, label, .stRadio label, .stCheckbox label {
+.stMarkdown, .stText, p, h1, h2, h3, h4, h5, h6, label, 
+.stRadio label, .stCheckbox label, div[data-testid="stMarkdownContainer"] {
+    color: #3C3C3C !important;
+}
+
+/* Headers */
+h1, h2, h3 {
     color: #3C3C3C !important;
 }
 
