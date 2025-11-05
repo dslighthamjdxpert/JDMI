@@ -81,6 +81,31 @@ h1, h2, h3 {
     color: #3C3C3C !important;
 }
 
+/* Sidebar collapse button */
+[data-testid="stSidebarCollapseButton"],
+button[kind="header"] {
+    color: #F9F9F9 !important;
+}
+
+[data-testid="stSidebarCollapseButton"] svg,
+button[kind="header"] svg {
+    fill: #F9F9F9 !important;
+    stroke: #F9F9F9 !important;
+}
+
+/* Expander styling - darker grey to pop off background */
+.st-emotion-cache-13k62yr,
+[data-testid="stExpander"],
+details {
+    background-color: #E5E5E5 !important;
+    border: 1px solid #D0D0D0 !important;
+    border-radius: 0.5rem !important;
+}
+
+.streamlit-expanderHeader {
+    background-color: #E5E5E5 !important;
+}
+
 /* Expander caret/arrow color */
 .streamlit-expanderHeader svg {
     stroke: #F9F9F9 !important;
@@ -90,6 +115,23 @@ h1, h2, h3 {
 details summary svg {
     stroke: #F9F9F9 !important;
     fill: #F9F9F9 !important;
+}
+
+/* Button styling - brand orange with light text */
+.stButton > button,
+button[kind="primary"],
+button[kind="secondary"] {
+    background-color: #FF8743 !important;
+    color: #F9F9F9 !important;
+    border: none !important;
+    font-weight: 500 !important;
+}
+
+.stButton > button:hover,
+button[kind="primary"]:hover,
+button[kind="secondary"]:hover {
+    background-color: #E67532 !important;
+    color: #F9F9F9 !important;
 }
 
 /* Ensure metric values and other numbers are visible on light background */
@@ -323,78 +365,29 @@ else:
     
     st.markdown(level_info['description'])
     
-    # Visualizations
+    # Dimensional Scores Table
     st.markdown("---")
     st.markdown("### Dimensional Breakdown")
     
-    col1, col2 = st.columns([1, 1])
+    # Scores table with custom color gradient
+    values = [scores['dim1'], scores['dim2'], scores['dim3'], scores['dim4'],
+             scores['dim5'], scores['dim6'], scores['dim7']]
+    dim_names = ['Coverage', 'Governance', 'Velocity', 'Architecture', 
+                'Integration', 'Controls', 'Ability to Act']
+    df = pd.DataFrame({
+        'Dimension': dim_names,
+        'Score': values,
+        'Max': [4] * 7,
+        'Gap': [4 - s for s in values]
+    })
     
-    with col1:
-        # Radar chart
-        categories = ['Coverage', 'Governance', 'Velocity', 'Architecture', 
-                     'Integration', 'Controls', 'Ability to Act']
-        values = [scores['dim1'], scores['dim2'], scores['dim3'], scores['dim4'],
-                 scores['dim5'], scores['dim6'], scores['dim7']]
-        values_closed = values + [values[0]]
-        categories_closed = categories + [categories[0]]
-        
-        fig = go.Figure()
-        fig.add_trace(go.Scatterpolar(
-            r=values_closed, theta=categories_closed, fill='toself', name='Your Score',
-            line=dict(color='#3AC1CC', width=2.5), fillcolor='rgba(58, 193, 204, 0.25)'))
-        
-        # Industry average
-        avg_values = [1.95, 2.08, 1.94, 1.93, 2.52, 2.08, 1.78] + [1.95]
-        fig.add_trace(go.Scatterpolar(
-            r=avg_values, theta=categories_closed, fill='toself', name='Industry Avg',
-            line=dict(color='#72CAB5', width=1.5, dash='dash'),
-            fillcolor='rgba(114, 202, 181, 0.1)'))
-        
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(
-                    visible=True, 
-                    range=[0, 4], 
-                    tickvals=[0,1,2,3,4], 
-                    gridcolor='#E0E0E0',
-                    tickfont=dict(color='#3C3C3C', size=12)
-                ),
-                angularaxis=dict(
-                    tickfont=dict(color='#3C3C3C', size=12)
-                ),
-                bgcolor='#FFFFFF'
-            ),
-            showlegend=True, 
-            legend=dict(
-                font=dict(color='#3C3C3C', size=12),
-                bgcolor='rgba(255, 255, 255, 0.8)'
-            ),
-            title="JDMI Dimension Scores",
-            title_font=dict(color='#3C3C3C', size=16),
-            height=450,
-            paper_bgcolor='#F9F9F9',
-            plot_bgcolor='#F9F9F9',
-            font=dict(color='#3C3C3C', family='Inter'))
-        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+    # Create custom colormap using brand colors: Red-Orange -> Orange -> Blue -> Teal -> Green-Teal
+    colors = ['#D74A28', '#FF8743', '#4089CE', '#3AC1CC', '#72CAB5']
+    n_bins = 100
+    cmap = mcolors.LinearSegmentedColormap.from_list('jdx_colors', colors, N=n_bins)
     
-    with col2:
-        # Scores table with custom color gradient
-        dim_names = ['Coverage', 'Governance', 'Velocity', 'Architecture', 
-                    'Integration', 'Controls', 'Ability to Act']
-        df = pd.DataFrame({
-            'Dimension': dim_names,
-            'Score': values,
-            'Max': [4] * 7,
-            'Gap': [4 - s for s in values]
-        })
-        
-        # Create custom colormap using brand colors: Red-Orange -> Orange -> Blue -> Teal -> Green-Teal
-        colors = ['#D74A28', '#FF8743', '#4089CE', '#3AC1CC', '#72CAB5']
-        n_bins = 100
-        cmap = mcolors.LinearSegmentedColormap.from_list('jdx_colors', colors, N=n_bins)
-        
-        st.dataframe(df.style.background_gradient(subset=['Score'], cmap=cmap, vmin=0, vmax=4),
-                    use_container_width=True, hide_index=True)
+    st.dataframe(df.style.background_gradient(subset=['Score'], cmap=cmap, vmin=0, vmax=4),
+                use_container_width=True, hide_index=True)
     
     # Recommendations
     st.markdown("---")
