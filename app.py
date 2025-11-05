@@ -88,9 +88,9 @@ if not st.session_state.completed:
     # Q4: Architecture
     st.markdown("#### 4️⃣ Architecture Alignment")
     st.markdown("*Which are linked to your job/skills data? (Select all)*")
-    responses['arch_mobility'] = st.checkbox("Internal mobility and career paths")
-    responses['arch_comp'] = st.checkbox("Compensation and job leveling")
-    responses['arch_planning'] = st.checkbox("Workforce planning")
+    responses['arch_mobility'] = st.checkbox("Internal mobility and career paths", key="arch_mobility")
+    responses['arch_comp'] = st.checkbox("Compensation and job leveling", key="arch_comp")
+    responses['arch_planning'] = st.checkbox("Workforce planning", key="arch_planning")
     
     # Q5: Integration
     st.markdown("#### 5️⃣ System Fragmentation/Integration")
@@ -106,27 +106,27 @@ if not st.session_state.completed:
     # Q6: Controls
     st.markdown("#### 6️⃣ Controls/Compliance")
     st.markdown("*Which governance controls are in place? (Select all)*")
-    responses['control_ownership'] = st.checkbox("Clear ownership of job/skills content")
-    responses['control_approvals'] = st.checkbox("Formal approval workflows")
-    responses['control_lineage'] = st.checkbox("Version history and audit trails")
-    responses['control_bias'] = st.checkbox("Bias review and compliance checks")
+    responses['control_ownership'] = st.checkbox("Clear ownership of job/skills content", key="control_ownership")
+    responses['control_approvals'] = st.checkbox("Formal approval workflows", key="control_approvals")
+    responses['control_lineage'] = st.checkbox("Version history and audit trails", key="control_lineage")
+    responses['control_bias'] = st.checkbox("Bias review and compliance checks", key="control_bias")
     
     # Q7: Ability to Act
     st.markdown("#### 7️⃣ Ability to Act (Analytics/Insights)")
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("*Skills data drives decisions for:*")
-        responses['act_reskilling'] = st.checkbox("Reskilling/upskilling programs")
-        responses['act_mobility'] = st.checkbox("Internal mobility decisions")
-        responses['act_comp'] = st.checkbox("Compensation decisions")
-        responses['act_hiring'] = st.checkbox("Hiring requirements")
-        responses['act_planning'] = st.checkbox("Workforce planning")
+        responses['act_reskilling'] = st.checkbox("Reskilling/upskilling programs", key="act_reskilling")
+        responses['act_mobility'] = st.checkbox("Internal mobility decisions", key="act_mobility")
+        responses['act_comp'] = st.checkbox("Compensation decisions", key="act_comp")
+        responses['act_hiring'] = st.checkbox("Hiring requirements", key="act_hiring")
+        responses['act_planning'] = st.checkbox("Workforce planning", key="act_planning")
     with col2:
         st.markdown("*We track these metrics:*")
-        responses['metric_cycle'] = st.checkbox("Cycle times (JD → Req → Hire)")
-        responses['metric_exception'] = st.checkbox("Exception rates / MTTR")
-        responses['metric_ttp'] = st.checkbox("Time-to-publish")
-        responses['metric_mobility'] = st.checkbox("Internal mobility rate")
+        responses['metric_cycle'] = st.checkbox("Cycle times (JD → Req → Hire)", key="metric_cycle")
+        responses['metric_exception'] = st.checkbox("Exception rates / MTTR", key="metric_exception")
+        responses['metric_ttp'] = st.checkbox("Time-to-publish", key="metric_ttp")
+        responses['metric_mobility'] = st.checkbox("Internal mobility rate", key="metric_mobility")
     
     # Optional org info
     with st.expander("📋 Optional: Organization Information"):
