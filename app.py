@@ -365,29 +365,61 @@ else:
     
     st.markdown(level_info['description'])
     
-    # Dimensional Scores Table
+    # Visualizations
     st.markdown("---")
     st.markdown("### Dimensional Breakdown")
     
-    # Scores table with custom color gradient
-    values = [scores['dim1'], scores['dim2'], scores['dim3'], scores['dim4'],
-             scores['dim5'], scores['dim6'], scores['dim7']]
-    dim_names = ['Coverage', 'Governance', 'Velocity', 'Architecture', 
-                'Integration', 'Controls', 'Ability to Act']
-    df = pd.DataFrame({
-        'Dimension': dim_names,
-        'Score': values,
-        'Max': [4] * 7,
-        'Gap': [4 - s for s in values]
-    })
+    col1, col2 = st.columns([1, 1])
     
-    # Create custom colormap using brand colors: Red-Orange -> Orange -> Blue -> Teal -> Green-Teal
-    colors = ['#D74A28', '#FF8743', '#4089CE', '#3AC1CC', '#72CAB5']
-    n_bins = 100
-    cmap = mcolors.LinearSegmentedColormap.from_list('jdx_colors', colors, N=n_bins)
+    with col1:
+        # Radar chart
+        categories = ['Coverage', 'Governance', 'Velocity', 'Architecture', 
+                     'Integration', 'Controls', 'Ability to Act']
+        values = [scores['dim1'], scores['dim2'], scores['dim3'], scores['dim4'],
+                 scores['dim5'], scores['dim6'], scores['dim7']]
+        values_closed = values + [values[0]]
+        categories_closed = categories + [categories[0]]
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatterpolar(
+            r=values_closed, theta=categories_closed, fill='toself', name='Your Score',
+            line=dict(color='#3AC1CC', width=2.5), fillcolor='rgba(58, 193, 204, 0.25)'))
+        
+        # Industry average
+        avg_values = [1.95, 2.08, 1.94, 1.93, 2.52, 2.08, 1.78] + [1.95]
+        fig.add_trace(go.Scatterpolar(
+            r=avg_values, theta=categories_closed, fill='toself', name='Industry Avg',
+            line=dict(color='#72CAB5', width=1.5, dash='dash'),
+            fillcolor='rgba(114, 202, 181, 0.1)'))
+        
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=True, 
+                    range=[0, 4], 
+                    tickvals=[0,1,2,3,4], 
+                    gridcolor='#E0E0E0',
+                    tickfont=dict(color='#3C3C3C', size=12)
+                ),
+                angularaxis=dict(
+                    tickfont=dict(color='#3C3C3C', size=12)
+                ),
+                bgcolor='#FFFFFF'
+            ),
+            showlegend=True, 
+            legend=dict(
+                font=dict(color='#3C3C3C', size=12),
+                bgcolor='rgba(255, 255, 255, 0.8)'
+            ),
+            title="JDMI Dimension Scores",
+            title_font=dict(color='#3C3C3C', size=16),
+            height=450,
+            paper_bgcolor='#F9F9F9',
+            plot_bgcolor='#F9F9F9',
+            font=dict(color='#3C3C3C', family='Inter'))
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     
-    st.dataframe(df.style.background_gradient(subset=['Score'], cmap=cmap, vmin=0, vmax=4),
-                use_container_width=True, hide_index=True)
+    
     
     # Recommendations
     st.markdown("---")
