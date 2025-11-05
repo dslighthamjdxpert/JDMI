@@ -1,0 +1,277 @@
+"""
+Job Data Maturity Index (JDMI) Assessment Tool
+Interactive assessment for organizational job data maturity
+"""
+
+import streamlit as st
+import plotly.graph_objects as go
+import pandas as pd
+from utils import calculate_jdmi_score, get_level_info, get_recommendations
+
+# Page config
+st.set_page_config(page_title="JDMI Assessment", page_icon="📊", layout="wide")
+
+# CSS styling
+st.markdown("""
+<style>
+.score-box {
+    padding: 2rem; border-radius: 0.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; text-align: center; margin: 1rem 0;
+}
+.score-number { font-size: 3rem; font-weight: 700; }
+.rec-box {
+    padding: 1rem; border-left: 4px solid #667eea;
+    background-color: #f3f4f6; margin: 0.5rem 0; border-radius: 0.25rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Session state
+if 'completed' not in st.session_state:
+    st.session_state.completed = False
+if 'responses' not in st.session_state:
+    st.session_state.responses = {}
+
+# Header
+st.title("📊 Job Data Maturity Index Assessment")
+st.markdown("*Benchmark your organization's job and skills data governance maturity*")
+
+with st.expander("ℹ️ About the JDMI"):
+    st.markdown("""
+    The **JDMI** measures maturity across 7 dimensions:
+    1. **Coverage/Completeness** — Do you have the data?
+    2. **Governance/Ownership** — Repeatable process and accountability?
+    3. **Freshness/Velocity** — How quickly can you update?
+    4. **Architecture Alignment** — Job levels, families, paths?
+    5. **System Integration** — Synchronized or siloed?
+    6. **Controls/Compliance** — Quality and compliance guardrails?
+    7. **Ability to Act** — Can you extract insights and drive decisions?
+    
+    **Key Finding:** 91% of organizations with high skills coverage still plan governance overhauls 
+    because data becomes static technical debt. Coverage ≠ maturity.
+    """)
+
+if not st.session_state.completed:
+    # ASSESSMENT FORM
+    st.markdown("---")
+    st.markdown("### Assessment Questions (5-7 minutes)")
+    
+    responses = {}
+    
+    # Q1: Coverage
+    st.markdown("#### 1️⃣ Coverage/Completeness of Skills Data")
+    st.markdown("*What % of job descriptions include defined skills/competencies?*")
+    responses['coverage'] = st.select_slider(
+        "coverage_pct", ["<25%", "25-49%", "50-74%", "75-89%", "≥90%"],
+        label_visibility="collapsed")
+    
+    # Q2: Governance
+    st.markdown("#### 2️⃣ Governance Cadence/Process Ownership")
+    st.markdown("*How do you manage job and skills data?*")
+    responses['governance'] = st.radio(
+        "governance_model",
+        ["Ongoing governed program with clear ownership and regular reviews",
+         "Primarily project-based with temporary ownership",
+         "Decentralized — each function manages independently",
+         "We do not actively manage job/skills data today"],
+        label_visibility="collapsed")
+    
+    # Q3: Velocity
+    st.markdown("#### 3️⃣ Freshness/Change Velocity")
+    st.markdown("*Time to update and publish a job description:*")
+    responses['velocity'] = st.select_slider(
+        "velocity_time",
+        ["More than 30 days", "15-30 days", "8-14 days", "3-7 days", "Less than 3 days"],
+        label_visibility="collapsed")
+    
+    # Q4: Architecture
+    st.markdown("#### 4️⃣ Architecture Alignment")
+    st.markdown("*Which are linked to your job/skills data? (Select all)*")
+    responses['arch_mobility'] = st.checkbox("Internal mobility and career paths")
+    responses['arch_comp'] = st.checkbox("Compensation and job leveling")
+    responses['arch_planning'] = st.checkbox("Workforce planning")
+    
+    # Q5: Integration
+    st.markdown("#### 5️⃣ System Fragmentation/Integration")
+    st.markdown("*Are job data updates automatically propagated across systems?*")
+    responses['integration'] = st.radio(
+        "integration_sync",
+        ["All core systems fully synchronized (HRIS, ATS, Comp, LMS)",
+         "Most systems integrated (3 of 4)",
+         "Some systems connected, but significant manual work",
+         "Systems operate independently (manual exports/imports)"],
+        label_visibility="collapsed")
+    
+    # Q6: Controls
+    st.markdown("#### 6️⃣ Controls/Compliance")
+    st.markdown("*Which governance controls are in place? (Select all)*")
+    responses['control_ownership'] = st.checkbox("Clear ownership of job/skills content")
+    responses['control_approvals'] = st.checkbox("Formal approval workflows")
+    responses['control_lineage'] = st.checkbox("Version history and audit trails")
+    responses['control_bias'] = st.checkbox("Bias review and compliance checks")
+    
+    # Q7: Ability to Act
+    st.markdown("#### 7️⃣ Ability to Act (Analytics/Insights)")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("*Skills data drives decisions for:*")
+        responses['act_reskilling'] = st.checkbox("Reskilling/upskilling programs")
+        responses['act_mobility'] = st.checkbox("Internal mobility decisions")
+        responses['act_comp'] = st.checkbox("Compensation decisions")
+        responses['act_hiring'] = st.checkbox("Hiring requirements")
+        responses['act_planning'] = st.checkbox("Workforce planning")
+    with col2:
+        st.markdown("*We track these metrics:*")
+        responses['metric_cycle'] = st.checkbox("Cycle times (JD → Req → Hire)")
+        responses['metric_exception'] = st.checkbox("Exception rates / MTTR")
+        responses['metric_ttp'] = st.checkbox("Time-to-publish")
+        responses['metric_mobility'] = st.checkbox("Internal mobility rate")
+    
+    # Optional org info
+    with st.expander("📋 Optional: Organization Information"):
+        col1, col2 = st.columns(2)
+        with col1:
+            responses['org_name'] = st.text_input("Organization Name")
+            responses['industry'] = st.selectbox("Industry", 
+                ["", "Technology", "Healthcare", "Financial Services", "Manufacturing", 
+                 "Retail", "Education", "Professional Services", "Other"])
+        with col2:
+            responses['org_size'] = st.selectbox("Organization Size",
+                ["", "< 500", "500-2,000", "2,000-5,000", "5,000-10,000", "> 10,000"])
+            responses['email'] = st.text_input("Email (for results)")
+    
+    st.markdown("---")
+    
+    # Submit button
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        if st.button("📊 Calculate My JDMI Score", type="primary", use_container_width=True):
+            scores = calculate_jdmi_score(responses)
+            level_info = get_level_info(scores['total'])
+            st.session_state.responses = responses
+            st.session_state.scores = scores
+            st.session_state.level_info = level_info
+            st.session_state.completed = True
+            st.rerun()
+
+else:
+    # RESULTS PAGE
+    scores = st.session_state.scores
+    level_info = st.session_state.level_info
+    
+    st.markdown("---")
+    st.markdown("## 📊 Your JDMI Results")
+    
+    # Score card
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown(f"""
+        <div class="score-box">
+            <div style="font-size: 1rem; margin-bottom: 0.5rem;">Your JDMI Score</div>
+            <div class="score-number">{scores['total']}<span style="font-size: 1.5rem; opacity: 0.8;"> / 28</span></div>
+            <div style="font-size: 1.5rem; margin-top: 1rem;">Level {level_info['number']}: {level_info['name']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown(level_info['description'])
+    
+    # Visualizations
+    st.markdown("---")
+    st.markdown("### Dimensional Breakdown")
+    
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        # Radar chart
+        categories = ['Coverage', 'Governance', 'Velocity', 'Architecture', 
+                     'Integration', 'Controls', 'Ability to Act']
+        values = [scores['dim1'], scores['dim2'], scores['dim3'], scores['dim4'],
+                 scores['dim5'], scores['dim6'], scores['dim7']]
+        values_closed = values + [values[0]]
+        categories_closed = categories + [categories[0]]
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatterpolar(
+            r=values_closed, theta=categories_closed, fill='toself', name='Your Score',
+            line=dict(color='#667eea', width=2), fillcolor='rgba(102, 126, 234, 0.3)'))
+        
+        # Industry average
+        avg_values = [1.95, 2.08, 1.94, 1.93, 2.52, 2.08, 1.78] + [1.95]
+        fig.add_trace(go.Scatterpolar(
+            r=avg_values, theta=categories_closed, fill='toself', name='Industry Avg',
+            line=dict(color='#9ca3af', width=1, dash='dash'),
+            fillcolor='rgba(156, 163, 175, 0.1)'))
+        
+        fig.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, 4], tickvals=[0,1,2,3,4])),
+            showlegend=True, title="JDMI Dimension Scores", height=450)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        # Scores table
+        dim_names = ['Coverage', 'Governance', 'Velocity', 'Architecture', 
+                    'Integration', 'Controls', 'Ability to Act']
+        df = pd.DataFrame({
+            'Dimension': dim_names,
+            'Score': values,
+            'Max': [4] * 7,
+            'Gap': [4 - s for s in values]
+        })
+        st.dataframe(df.style.background_gradient(subset=['Score'], cmap='RdYlGn', vmin=0, vmax=4),
+                    use_container_width=True, hide_index=True)
+    
+    # Recommendations
+    st.markdown("---")
+    st.markdown("### 🎯 Personalized Recommendations")
+    
+    recs = get_recommendations(scores, level_info['number'])
+    for i, rec in enumerate(recs, 1):
+        st.markdown(f"""
+        <div class="rec-box">
+            <strong>{i}. {rec['title']}</strong><br/>
+            {rec['description']}
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Benchmarking
+    st.markdown("---")
+    st.markdown("### 📈 Benchmarking")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Your Level", f"Level {level_info['number']}")
+    with col2:
+        st.metric("Industry Average", "14.3 / 28", f"{scores['total'] - 14.28:+.1f}")
+    with col3:
+        percentile = "Top 5%" if scores['total'] >= 22 else "Top 10%" if scores['total'] >= 20 else "Top 50%" if scores['total'] >= 14 else "Bottom 50%"
+        st.metric("Estimated Percentile", percentile)
+    
+    # Key insights
+    st.markdown("---")
+    st.markdown("### 💡 Key Insights")
+    if scores['dim1'] >= 3 and scores['total'] < 20:
+        st.markdown("⚠️ **Coverage vs. Governance Gap**: High skills coverage but lack governance to operationalize it—91% of orgs here plan major overhauls.")
+    if scores['dim3'] <= 1:
+        st.markdown("🐌 **Velocity Bottleneck**: Taking 15+ days to update jobs creates friction. Streamline approval process.")
+    if scores['dim7'] <= 1:
+        st.markdown("📊 **Data Trapped**: Job/skills data isn't driving decisions. Without analytics, you can't demonstrate ROI.")
+    
+    # Action buttons
+    st.markdown("---")
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button("🔄 Retake Assessment", use_container_width=True):
+            st.session_state.completed = False
+            st.session_state.responses = {}
+            st.rerun()
+    with col2:
+        st.markdown("[📅 Schedule Consultation →](https://jdxpert.com/demo)")
+
+# Footer
+st.markdown("---")
+st.markdown("""
+<div style="text-align: center; color: #9ca3af; padding: 2rem 0;">
+<p><strong>Job Data Maturity Index (JDMI)</strong> by JDX</p>
+<p>Based on research with 227+ organizations | Framework v1.0</p>
+</div>
+""", unsafe_allow_html=True)
