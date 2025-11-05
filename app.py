@@ -48,6 +48,39 @@ h1, h2, h3 {
     color: #3C3C3C !important;
 }
 
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background-color: #F9F9F9 !important;
+    position: relative;
+}
+
+[data-testid="stSidebar"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+}
+
+[data-testid="stSidebar"] > div:first-child {
+    background-color: transparent !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Sidebar text color */
+[data-testid="stSidebar"] .stMarkdown,
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] h4 {
+    color: #3C3C3C !important;
+}
+
 .score-box {
     padding: 2rem; border-radius: 0.5rem;
     background: linear-gradient(135deg, #3AC1CC 0%, #4089CE 100%);
