@@ -33,6 +33,49 @@ if 'completed' not in st.session_state:
 if 'responses' not in st.session_state:
     st.session_state.responses = {}
 
+# Sidebar
+with st.sidebar:
+    st.markdown("### 📊 JDMI Assessment")
+    st.markdown("---")
+    
+    st.markdown("#### About This Tool")
+    st.markdown("""
+    This assessment uses the **Job Data Maturity Index (JDMI)** framework developed from research with 227+ organizations.
+    
+    **Time:** 5-7 minutes  
+    **Questions:** 7 dimensions  
+    **Output:** Personalized report with recommendations
+    """)
+    
+    st.markdown("---")
+    st.markdown("#### Assessment Dimensions")
+    st.markdown("""
+    1. 📋 Coverage/Completeness
+    2. ⚙️ Governance/Ownership
+    3. ⚡ Freshness/Velocity
+    4. 🏗️ Architecture Alignment
+    5. 🔗 System Integration
+    6. 🛡️ Controls/Compliance
+    7. 📊 Ability to Act
+    """)
+    
+    st.markdown("---")
+    st.markdown("#### Need Help?")
+    st.markdown("""
+    - 📧 [Contact JDX](mailto:info@jdxpert.com)
+    - 🌐 [Visit Website](https://jdxpert.com)
+    - 📅 [Schedule Demo](https://jdxpert.com/demo)
+    """)
+    
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; font-size: 0.8rem; color: #666;">
+    <p><strong>JDMI v1.0</strong></p>
+    <p>Based on 227+ org research</p>
+    <p>© 2025 JDX</p>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Header
 st.title("📊 Job Data Maturity Index Assessment")
 st.markdown("*Benchmark your organization's job and skills data governance maturity*")
