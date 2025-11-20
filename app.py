@@ -948,11 +948,18 @@ def render_results_ready_message():
 
     st.markdown("## 🎉 Your Job IQ Assessment is Complete!")
 
-    st.success("Your personalized results are ready to view!")
+    st.markdown(
+        """
+        <div style="background-color: #E8FDFF; color: #0D5865; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #3AC1CC; margin: 1rem 0;">
+            ✅ Your personalized results are ready to view!
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        if st.button("📊 View My Job IQ Results",
+        if st.button("View My Job IQ Results",
                     type="primary",
                     use_container_width=True):
             st.session_state.assessment_complete = True
