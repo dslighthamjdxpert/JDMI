@@ -25,6 +25,7 @@ st.set_page_config(
     page_title="Job IQ — Job Intelligence Index",
     layout="wide",
     initial_sidebar_state="expanded",
+    menu_items=None
 )
 
 # Custom CSS
