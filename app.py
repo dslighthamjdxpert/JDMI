@@ -270,6 +270,30 @@ st.markdown(
     .stApp [style*="linear-gradient"][style*="255,75,75"] {
         background-image: linear-gradient(to right, var(--c-button) 0%, var(--c-button) 50%, rgba(172, 177, 195, 0.25) 50%, rgba(172, 177, 195, 0.25) 100%) !important;
     }
+
+    /* Hide the entire top header bar for clean, branded experience */
+    .stApp header {
+        display: none !important;
+    }
+
+    /* Hide any remaining header elements and toolbar */
+    .stApp [data-testid="stHeader"] {
+        display: none !important;
+    }
+
+    .stApp [data-testid="stToolbar"] {
+        display: none !important;
+    }
+
+    /* Hide app title and branding area */
+    .stApp .st-emotion-cache-1avcm0n {
+        display: none !important;
+    }
+
+    /* Additional header elements to hide */
+    .stApp .st-emotion-cache-1c7y2kd {
+        display: none !important;
+    }
 </style>
 """,
     unsafe_allow_html=True,
